@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental Fitness 5-6 Activity Quiz</title>
+  <style>
+    /* Centers everything nicely on your screen */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      width: 100%;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+    video {
+      width: 100%;
+      border-radius: 5px;
+      background: #000;
+    }
+    /* Hidden by default, shows up when video pauses */
+    #quiz-box {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background: #eef2ff;
+      border: 2px solid #4f46e5;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #4338ca;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Step 1: Choose a video from your device</h2>
+  <input type="file" id="video-uploader" accept="video/*">
+
+  <div id="video-wrapper">
+    <video id="quiz-video" controls></video>
+  </div>
+
+  <!-- The Quiz UI Box -->
+  <div id="quiz-box">
+    <h3 id="question-text">Loading question...</h3>
+    <div id="options-container"></div>
+    <p id="feedback"></p>
+  </div>
+</div>
+
+<script>
+  // Connect code to HTML elements
+  const videoUploader = document.getElementById('video-uploader');
+  const quizVideo = document.getElementById('quiz-video');
+  const quizBox = document.getElementById('quiz-box');
+  const questionText = document.getElementById('question-text');
+  const optionsContainer = document.getElementById('options-container');
+  const feedback = document.getElementById('feedback');
+
+  // Track if the question has already been asked so it doesn't repeat infinitely
+  let questionAsked = false;
+
+  // 1. Load the video file from your device
+  videoUploader.addEventListener('change', function(event) {
+    const file = event.target.files[0]; 
+    if (file) {
+      const fileURL = URL.createObjectURL(file);
+      quizVideo.src = fileURL;
+      quizVideo.load();
+      // Reset quiz tracking for a new video
+      questionAsked = false;
+      quizBox.style.display = 'none';
+    }
+  });
+
+  // 2. Watch the video playback time
+  quizVideo.addEventListener('timeupdate', function() {
+    // Check if video reached 5 seconds and we haven't asked the question yet
+    if (Math.floor(quizVideo.currentTime) === 5 && !questionAsked) {
+      quizVideo.pause(); // Pause the video
+      questionAsked = true; // Mark as asked
+      showQuestion(); // Show the quiz
+    }
+  });
+
+  // 3. Define the question data
+  const quizData = {
+    question: "This video has been paused! What is 2 + 2?",
+    options: ["3", "4", "5"],
+    correct: "4"
+  };
+
+  // 4. Display the question and choice buttons
+  function showQuestion() {
+    quizBox.style.display = 'block';
+    questionText.textContent = quizData.question;
+    optionsContainer.innerHTML = ''; // Clear old buttons
+    feedback.textContent = ''; // Clear old feedback
+
+    // Create a button for each answer choice
+    quizData.options.forEach(option => {
+      const btn = document.createElement('button');
+      btn.textContent = option;
+      btn.onclick = function() { checkAnswer(option); };
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  // 5. Check if the answer clicked is correct
+  function checkAnswer(selectedOption) {
+    if (selectedOption === quizData.correct) {
+      feedback.style.color = 'green';
+      feedback.textContent = 'Correct! Resuming video...';
+      
+      // Wait 1.5 seconds so they can see they got it right, then resume video
+      setTimeout(() => {
+        quizBox.style.display = 'none';
+        quizVideo.play();
+      }, 1500);
+    } else {
+      feedback.style.color = 'red';
+      feedback.textContent = 'Wrong answer! Try again.';
+    }
+  }
+</script>
+
+</body>
+</html>
