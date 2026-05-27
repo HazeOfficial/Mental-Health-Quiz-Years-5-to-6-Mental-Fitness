@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mental Fitness 5-6 Activity Quiz</title>
+  <title>My Dedicated Video Quiz</title>
   <style>
-    /* Centers everything nicely on your screen */
     body {
       font-family: Arial, sans-serif;
       background-color: #f0f2f5;
@@ -23,15 +22,11 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       text-align: center;
     }
-    input[type="file"] {
-      margin-bottom: 20px;
-    }
     video {
       width: 100%;
       border-radius: 5px;
       background: #000;
     }
-    /* Hidden by default, shows up when video pauses */
     #quiz-box {
       display: none;
       margin-top: 20px;
@@ -62,14 +57,16 @@
 <body>
 
 <div class="container">
-  <h2>Step 1: Choose a video from your device</h2>
-  <input type="file" id="video-uploader" accept="video/*">
+  <h2>Watch the video and answer the questions!</h2>
 
   <div id="video-wrapper">
-    <video id="quiz-video" controls></video>
+    <!-- CRITICAL: Change quiz-video.mp4 to match your exact file name -->
+    <video id="quiz-video" controls>
+      <source src="downlodawdwaad.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
   </div>
 
-  <!-- The Quiz UI Box -->
   <div id="quiz-box">
     <h3 id="question-text">Loading question...</h3>
     <div id="options-container"></div>
@@ -78,55 +75,37 @@
 </div>
 
 <script>
-  // Connect code to HTML elements
-  const videoUploader = document.getElementById('video-uploader');
   const quizVideo = document.getElementById('quiz-video');
   const quizBox = document.getElementById('quiz-box');
   const questionText = document.getElementById('question-text');
   const optionsContainer = document.getElementById('options-container');
   const feedback = document.getElementById('feedback');
 
-  // Track if the question has already been asked so it doesn't repeat infinitely
   let questionAsked = false;
 
-  // 1. Load the video file from your device
-  videoUploader.addEventListener('change', function(event) {
-    const file = event.target.files[0]; 
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      quizVideo.src = fileURL;
-      quizVideo.load();
-      // Reset quiz tracking for a new video
-      questionAsked = false;
-      quizBox.style.display = 'none';
-    }
-  });
-
-  // 2. Watch the video playback time
+  // Watch video playback time
   quizVideo.addEventListener('timeupdate', function() {
-    // Check if video reached 5 seconds and we haven't asked the question yet
+    // Pauses at exactly 5 seconds. You can change this number!
     if (Math.floor(quizVideo.currentTime) === 5 && !questionAsked) {
-      quizVideo.pause(); // Pause the video
-      questionAsked = true; // Mark as asked
-      showQuestion(); // Show the quiz
+      quizVideo.pause();
+      questionAsked = true;
+      showQuestion();
     }
   });
 
-  // 3. Define the question data
+  // Your question data
   const quizData = {
-    question: "This video has been paused! What is 2 + 2?",
+    question: "The video is paused! What is 2 + 2?",
     options: ["3", "4", "5"],
     correct: "4"
   };
 
-  // 4. Display the question and choice buttons
   function showQuestion() {
     quizBox.style.display = 'block';
-    questionText.textContent = quizData.question;
-    optionsContainer.innerHTML = ''; // Clear old buttons
-    feedback.textContent = ''; // Clear old feedback
+    questionText.textContent = quizData.quizData || quizData.question;
+    optionsContainer.innerHTML = '';
+    feedback.textContent = '';
 
-    // Create a button for each answer choice
     quizData.options.forEach(option => {
       const btn = document.createElement('button');
       btn.textContent = option;
@@ -135,13 +114,11 @@
     });
   }
 
-  // 5. Check if the answer clicked is correct
   function checkAnswer(selectedOption) {
     if (selectedOption === quizData.correct) {
       feedback.style.color = 'green';
       feedback.textContent = 'Correct! Resuming video...';
       
-      // Wait 1.5 seconds so they can see they got it right, then resume video
       setTimeout(() => {
         quizBox.style.display = 'none';
         quizVideo.play();
